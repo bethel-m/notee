@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "843575201947",
+    "project_id": "notee-note-taker",
+    "storage_bucket": "notee-note-taker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843575201947:android:b38108a3782eb1f62e363e",
+        "android_client_info": {
+          "package_name": "site.bethelmmadu.notee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "843575201947-5crghccjhr2pr11n5kngamnuc5su1aq9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMy__Lfm4g2lKTCctN-p240PrI-5fMQXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "843575201947-5crghccjhr2pr11n5kngamnuc5su1aq9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "843575201947-rcnmsho92qs37odjsi271m1e2q3d7g6v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "site.bethelmmadu.notee"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
