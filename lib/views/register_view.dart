@@ -1,8 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import '../firebase_options.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:notee/extensions/buildcontext/loc.dart';
+import 'package:notee/services/auth/auth_exceptions.dart';
+import 'package:notee/services/auth/bloc/auth_bloc.dart';
+import 'package:notee/services/auth/bloc/auth_event.dart';
+import 'package:notee/services/auth/bloc/auth_state.dart';
+import 'package:notee/utilities/diaglog/error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -32,79 +35,75 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Register",
-        ),
-      ),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(
-                children: [
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    autocorrect: false,
-                    decoration: const InputDecoration(
-                      hintText: "enter your email",
-                    ),
-                  ),
-                  TextField(
-                      controller: _password,
-                      keyboardType: TextInputType.emailAddress,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        hintText: "enter your password",
-                      )),
-                  TextButton(
-                    onPressed: () async {
-                      try {
-                        String email = _email.text;
-                        String password = _password.text;
-                        final newUser = await FirebaseAuth.instance
-                            .createUserWithEmailAndPassword(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateRegistering) {
+          if (state.exception is EmailAlreadyInUseAuthException) {
+            await showErrorDialog(
+              context,
+              context.loc.register_error_email_already_in_use,
+            );
+          } else if (state.exception is InvalidEmailAuthException) {
+            await showErrorDialog(
+              context,
+              context.loc.register_error_invalid_email,
+            );
+          } else if (state.exception is WeakPasswordAuthException) {
+            await showErrorDialog(
+              context,
+              context.loc.register_error_weak_password,
+            );
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(context, context.loc.register_error_generic);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text(context.loc.register)),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(context.loc.register_view_prompt),
+              TextField(
+                controller: _email,
+                keyboardType: TextInputType.emailAddress,
+                autocorrect: false,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: context.loc.email_text_field_placeholder,
+                ),
+              ),
+              TextField(
+                  controller: _password,
+                  keyboardType: TextInputType.emailAddress,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: context.loc.password_text_field_placeholder,
+                  )),
+              TextButton(
+                onPressed: () async {
+                  String email = _email.text;
+                  String password = _password.text;
+                  context.read<AuthBloc>().add(
+                        AuthEventRegister(
                           email: email,
                           password: password,
-                        );
-                        print(newUser);
-                      } on FirebaseAuthException catch (e) {
-                        switch (e.code) {
-                          case ("email-already-in-use"):
-                            print("this email is already in use");
-                            break;
-                          case ("invalid-email"):
-                            print("this email is invalid");
-                            break;
-                          case ("operation-not-allowed"):
-                            print("operation not allowed");
-                            break;
-                          case ("weak-password"):
-                            print("weak password");
-                            break;
-                          default:
-                            print("something went wrong");
-                        }
-                      } catch (e) {
-                        print("something went wrong");
-                      }
-                    },
-                    child: const Text("Register"),
-                  ),
-                ],
-              );
-              break;
-            default:
-              return Text("loading");
-          }
-        },
+                        ),
+                      );
+                },
+                child: Text(context.loc.register),
+              ),
+              TextButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const AuthEventLogOut());
+                  },
+                  child: Text(context.loc.register_view_already_registered))
+            ],
+          ),
+        ),
       ),
     );
   }
